@@ -33,6 +33,10 @@ PRODUCT_COPY_FILES += \
 # Radio
 $(call inherit-product, build/target/product/telephony.mk)
 
+PRODUCT_PROPERTY_OVERRIDES += \
+	mobiledata.interfaces=pdp0,wlan0,gprs,ppp0 \
+	ro.telephony.call_ring.multiple=false \
+	ro.telephony.call_ring.delay=3000
 
 PRODUCT_COPY_FILES += \
 	frameworks/native/data/etc/android.hardware.telephony.gsm.xml:system/etc/permissions/android.hardware.telephony.gsm.xml
