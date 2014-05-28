@@ -19,11 +19,6 @@ $(call inherit-product-if-exists, vendor/samsung/p6800/vendor.mk)
 # Set preferred size for assets
 PRODUCT_AAPT_PREF_CONFIG := tvdpi
 
-# Audio
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/etc/tinyalsa-audio.xml:system/etc/tinyalsa-audio.xml \
-    $(LOCAL_PATH)/configs/etc/audio_policy.conf:system/etc/audio_policy.conf
-
 # International variants have proximity sensor
 PRODUCT_COPY_FILES += \
 	frameworks/native/data/etc/android.hardware.sensor.proximity.xml:system/etc/permissions/android.hardware.sensor.proximity.xml 
@@ -37,7 +32,7 @@ PRODUCT_COPY_FILES += \
 
 # Radio
 $(call inherit-product, build/target/product/telephony.mk)
-#$(call inherit-product, vendor/cm/config/gsm.mk)
+
 
 PRODUCT_COPY_FILES += \
 	frameworks/native/data/etc/android.hardware.telephony.gsm.xml:system/etc/permissions/android.hardware.telephony.gsm.xml

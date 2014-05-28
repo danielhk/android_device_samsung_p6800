@@ -19,10 +19,6 @@ DEVICE_PACKAGE_OVERLAYS += device/samsung/p6800/overlay
 # Include common smdk4210-tab configuration
 -include device/samsung/smdk4210-tab/BoardConfigCommon.mk
 
-# RIL
-BOARD_PROVIDES_LIBRIL := true
-BOARD_MODEM_TYPE := xmm6260
-
 TARGET_OTA_ASSERT_DEVICE := p6800,GT-P6800
 
 TARGET_KERNEL_CONFIG := cyanogenmod_p6800_defconfig
