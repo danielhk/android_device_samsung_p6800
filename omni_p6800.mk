@@ -20,14 +20,19 @@ TARGET_SCREEN_WIDTH := 1280
 
 # Inherit device configuration
 $(call inherit-product, $(LOCAL_PATH)/device.mk)
-$(call inherit-product, vendor/cm/config/common_full_phone.mk)
+
+# Inherit from our omni product configuration
+$(call inherit-product, vendor/omni/config/common.mk)
+
+# Pull in GSM-specific stuff such as APNs
+$(call inherit-product, vendor/omni/config/gsm.mk)
 
 # Device identifier. This must come after all inclusions
 PRODUCT_BRAND := Samsung
 PRODUCT_DEVICE := p6800
 PRODUCT_MANUFACTURER := Samsung
 PRODUCT_MODEL := GT-P6800
-PRODUCT_NAME := cm_p6800
+PRODUCT_NAME := omni_p6800
 PRODUCT_RELEASE_NAME := GT-P6800
 
 # Set product name and build fingerprint
