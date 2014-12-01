@@ -28,3 +28,9 @@ BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/p6800/bluetooth
 BOARD_HAS_EARPIECE := true
 
 BOARD_USES_GP2A := true
+
+# RIL, use AOSP ril
+#TARGET_SPECIFIC_HEADER_PATH += device/samsung/p6800/overlay/include
+#BOARD_PROVIDES_LIBRIL := true
+#BOARD_MODEM_TYPE := xmm6260
+
