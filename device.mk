@@ -26,22 +26,24 @@ PRODUCT_COPY_FILES += \
 # GPS
 $(call inherit-product, device/common/gps/gps_eu_supl.mk)
 PRODUCT_COPY_FILES += \
-	device/samsung/smdk4210-tab/rootdir/init.smdk4210.gps.rc:root/init.smdk4210.gps.rc \
 	device/samsung/smdk4210-tab/configs/etc/gps.cer:system/etc/gps.cer \
 	device/samsung/smdk4210-tab/configs/etc/gps.xml:system/etc/gps.xml
 
 # Radio
 $(call inherit-product, build/target/product/telephony.mk)
 
+# RIL
 PRODUCT_PROPERTY_OVERRIDES += \
-	mobiledata.interfaces=pdp0,wlan0,gprs,ppp0 \
-	ro.telephony.call_ring.multiple=false \
-	ro.telephony.call_ring.delay=3000
+    mobiledata.interfaces=pdp0,wlan0,gprs,ppp0 \
+    ro.telephony.call_ring.multiple=false \
+    ro.telephony.call_ring.delay=3000
 
 PRODUCT_COPY_FILES += \
 	frameworks/native/data/etc/android.hardware.telephony.gsm.xml:system/etc/permissions/android.hardware.telephony.gsm.xml
 
+# extra packages
 PRODUCT_PACKAGES += \
 	SamsungServiceMode \
 	VoiceDialer \
-	libsecril-client
+	libsecril-client \
+	libsecril-client-sap
