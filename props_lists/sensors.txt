@@ -1,1 +1,1 @@
-system/lib/hw/sensors.exynos4.so
+system/lib/hw/sensors.smdk4210.so

@@ -1,1 +1,0 @@
-system/lib/hw/vendor-camera.exynos4.so
