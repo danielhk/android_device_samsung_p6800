@@ -1,6 +1,4 @@
 /*
- * Copyright (c) 2012-2013, The Linux Foundation. All rights reserved.
- * Not a Contribution
  * Copyright (C) 2006 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +20,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <telephony/ril_cdma_sms.h>
-#include <telephony/ril_msim.h>
+
 #ifndef FEATURE_UNIT_TEST
 #include <sys/time.h>
 #endif /* !FEATURE_UNIT_TEST */
@@ -37,16 +35,9 @@ extern "C" {
 #else
 #define RIL_VERSION_MIN 6 /* Minimum RIL_VERSION supported */
 #endif
-#define RIL_QCOM_VERSION 3 /* Qualcomm internal RIL version */
 
 #define CDMA_ALPHA_INFO_BUFFER_LENGTH 64
 #define CDMA_NUMBER_INFO_BUFFER_LENGTH 81
-
-#define MAX_RILDS 3
-#define MAX_SOCKET_NAME_LENGTH 6
-#define MAX_CLIENT_ID_LENGTH 2
-#define MAX_DEBUG_SOCKET_NAME_LENGTH 12
-#define MAX_QEMU_PIPE_NAME_LENGTH  11
 
 typedef void * RIL_Token;
 
@@ -73,17 +64,8 @@ typedef enum {
     RIL_E_FDN_CHECK_FAILURE = 14,               /* command failed because recipient is not on FDN list */
     RIL_E_ILLEGAL_SIM_OR_ME = 15,               /* network selection failed due to
                                                    illegal SIM or ME */
-    RIL_E_UNUSED = 16,
-    RIL_E_DIAL_MODIFIED_TO_USSD = 17,           /* DIAL request modified to USSD */
-    RIL_E_DIAL_MODIFIED_TO_SS = 18,             /* DIAL request modified to SS */
-    RIL_E_DIAL_MODIFIED_TO_DIAL = 19,           /* DIAL request modified to DIAL with different data */
-    RIL_E_USSD_MODIFIED_TO_DIAL = 20,           /* USSD request modified to DIAL */
-    RIL_E_USSD_MODIFIED_TO_SS = 21,             /* USSD request modified to SS */
-    RIL_E_USSD_MODIFIED_TO_USSD = 22,           /* USSD request modified to different USSD request */
-    RIL_E_SS_MODIFIED_TO_DIAL = 23,             /* SS request modified to DIAL */
-    RIL_E_SS_MODIFIED_TO_USSD = 24,             /* SS request modified to USSD */
-    RIL_E_SS_MODIFIED_TO_SS = 25,               /* SS request modified to different SS request */
-    RIL_E_SUBSCRIPTION_NOT_SUPPORTED = 26       /* Subscription not supported by RIL */
+    RIL_E_MISSING_RESOURCE = 16,                /* no logical channel available */
+    RIL_E_NO_SUCH_ELEMENT = 17                  /* application not found on SIM */
 } RIL_Errno;
 
 typedef enum {
@@ -131,7 +113,6 @@ typedef enum {
     RADIO_TECH_HSPAP = 15, // HSPA+
     RADIO_TECH_GSM = 16, // Only supports voice
     RADIO_TECH_TD_SCDMA = 17,
-    RADIO_TECH_IWLAN = 18,
     RADIO_TECH_DCHSPAP = 30
 } RIL_RadioTechnology;
 
@@ -150,17 +131,7 @@ typedef enum {
     PREF_NET_TYPE_LTE_GSM_WCDMA            = 9, /* LTE, GSM/WCDMA */
     PREF_NET_TYPE_LTE_CMDA_EVDO_GSM_WCDMA  = 10, /* LTE, CDMA, EvDo, GSM/WCDMA */
     PREF_NET_TYPE_LTE_ONLY                 = 11, /* LTE only */
-    PREF_NET_TYPE_LTE_WCDMA                = 12, /* LTE/WCDMA */
-    PREF_NET_TYPE_TD_SCDMA_ONLY            = 13, /* TD-SCDMA only */
-    PREF_NET_TYPE_TD_SCDMA_WCDMA           = 14, /* TD-SCDMA and WCDMA */
-    PREF_NET_TYPE_TD_SCDMA_LTE             = 15, /* TD-SCDMA and LTE */
-    PREF_NET_TYPE_TD_SCDMA_GSM             = 16, /* TD-SCDMA and GSM */
-    PREF_NET_TYPE_TD_SCDMA_GSM_LTE         = 17, /* TD-SCDMA,GSM and LTE */
-    PREF_NET_TYPE_TD_SCDMA_GSM_WCDMA       = 18, /* TD-SCDMA, GSM/WCDMA */
-    PREF_NET_TYPE_TD_SCDMA_WCDMA_LTE       = 19, /* TD-SCDMA, WCDMA and LTE */
-    PREF_NET_TYPE_TD_SCDMA_GSM_WCDMA_LTE   = 20, /* TD-SCDMA, GSM/WCDMA and LTE */
-    PREF_NET_TYPE_TD_SCDMA_GSM_WCDMA_CDMA_EVDO_AUTO  = 21, /* TD-SCDMA, GSM/WCDMA, CDMA and EvDo */
-    PREF_NET_TYPE_TD_SCDMA_LTE_CDMA_EVDO_GSM_WCDMA   = 22  /* TD-SCDMA, LTE, CDMA, EvDo GSM/WCDMA */
+    PREF_NET_TYPE_LTE_WCDMA                = 12  /* LTE/WCDMA */
 } RIL_PreferredNetworkType;
 
 /* Source for cdma subscription */
@@ -416,9 +387,6 @@ typedef enum {
     CALL_FAIL_FDN_BLOCKED = 241,
     CALL_FAIL_IMSI_UNKNOWN_IN_VLR = 242,
     CALL_FAIL_IMEI_NOT_ACCEPTED = 243,
-    CALL_FAIL_DIAL_MODIFIED_TO_USSD = 244, /* STK Call Control */
-    CALL_FAIL_DIAL_MODIFIED_TO_SS = 245,
-    CALL_FAIL_DIAL_MODIFIED_TO_DIAL = 246,
     CALL_FAIL_CDMA_LOCKED_UNTIL_POWER_CYCLE = 1000,
     CALL_FAIL_CDMA_DROP = 1001,
     CALL_FAIL_CDMA_INTERCEPT = 1002,
@@ -454,7 +422,8 @@ typedef enum {
     PDP_FAIL_SERVICE_OPTION_NOT_SUBSCRIBED = 0x21, /* no retry */
     PDP_FAIL_SERVICE_OPTION_OUT_OF_ORDER = 0x22,
     PDP_FAIL_NSAPI_IN_USE = 0x23,                  /* no retry */
-    PDP_FAIL_REGULAR_DEACTIVATION = 0x24,          /* restart radio */
+    PDP_FAIL_REGULAR_DEACTIVATION = 0x24,          /* possibly restart radio,
+                                                      based on framework config */
     PDP_FAIL_ONLY_IPV4_ALLOWED = 0x32,             /* no retry */
     PDP_FAIL_ONLY_IPV6_ALLOWED = 0x33,             /* no retry */
     PDP_FAIL_ONLY_SINGLE_BEARER_ALLOWED = 0x34,
@@ -465,7 +434,7 @@ typedef enum {
     PDP_FAIL_DATA_REGISTRATION_FAIL = -2,
 
    /* reasons for data call drop - network/modem disconnect */
-    PDP_FAIL_SIGNAL_LOST = -3,
+    PDP_FAIL_SIGNAL_LOST = -3,            /* no retry */
     PDP_FAIL_PREF_RADIO_TECH_CHANGED = -4,/* preferred technology has changed, should retry
                                              with parameters appropriate for new technology */
     PDP_FAIL_RADIO_POWER_OFF = -5,        /* data call was disconnected because radio was resetting,
@@ -785,13 +754,6 @@ typedef struct {
                           * also: http://www.cellular-planningoptimization.com/2010/02/timing-advance-with-calculation.html */
 } RIL_LTE_SignalStrength_v8;
 
-typedef struct {
-    int rscp;    /* The Received Signal Code Power in dBm multipled by -1.
-                  * Range : 25 to 120
-                  * INT_MAX: 0x7FFFFFFF denotes invalid value.
-                  * Reference: 3GPP TS 25.123, section 9.1.1.1 */
-} RIL_TD_SCDMA_SignalStrength_CAF;
-
 /* Deprecated, use RIL_SignalStrength_v6 */
 typedef struct {
     RIL_GW_SignalStrength   GW_SignalStrength;
@@ -812,14 +774,6 @@ typedef struct {
     RIL_EVDO_SignalStrength     EVDO_SignalStrength;
     RIL_LTE_SignalStrength_v8   LTE_SignalStrength;
 } RIL_SignalStrength_v8;
-
-typedef struct {
-    RIL_GW_SignalStrength           GW_SignalStrength;
-    RIL_CDMA_SignalStrength         CDMA_SignalStrength;
-    RIL_EVDO_SignalStrength         EVDO_SignalStrength;
-    RIL_LTE_SignalStrength_v8       LTE_SignalStrength;
-    RIL_TD_SCDMA_SignalStrength_CAF TD_SCDMA_SignalStrength;
-} RIL_SignalStrength_v9_CAF;
 
 /** RIL_CellIdentityGsm */
 typedef struct {
@@ -1032,87 +986,6 @@ typedef struct {
   RIL_CDMA_InformationRecord infoRec[RIL_CDMA_MAX_NUMBER_OF_INFO_RECS];
 } RIL_CDMA_InformationRecords;
 
-/* Data Call Profile: Simple IP User Profile Parameters*/
-typedef struct {
-  int  profileId;
-  int  priority;       /* priority. [0..255], 0 - highest */
-} RIL_DataCallProfileInfo;
-
-typedef enum {
-  SS_CFU,
-  SS_CF_BUSY,
-  SS_CF_NO_REPLY,
-  SS_CF_NOT_REACHABLE,
-  SS_CF_ALL,
-  SS_CF_ALL_CONDITIONAL,
-  SS_CLIP,
-  SS_CLIR,
-  SS_COLP,
-  SS_COLR,
-  SS_WAIT,
-  SS_BAOC,
-  SS_BAOIC,
-  SS_BAOIC_EXC_HOME,
-  SS_BAIC,
-  SS_BAIC_ROAMING,
-  SS_ALL_BARRING,
-  SS_OUTGOING_BARRING,
-  SS_INCOMING_BARRING
-} RIL_SsServiceType;
-
-typedef enum {
-  SS_ACTIVATION,
-  SS_DEACTIVATION,
-  SS_INTERROGATION,
-  SS_REGISTRATION,
-  SS_ERASURE
-} RIL_SsRequestType;
-
-typedef enum {
-  SS_ALL_TELE_AND_BEARER_SERVICES,
-  SS_ALL_TELESEVICES,
-  SS_TELEPHONY,
-  SS_ALL_DATA_TELESERVICES,
-  SS_SMS_SERVICES,
-  SS_ALL_TELESERVICES_EXCEPT_SMS
-} RIL_SsTeleserviceType;
-
-#define SS_INFO_MAX 4
-#define NUM_SERVICE_CLASSES 7
-
-typedef struct {
-  int numValidIndexes; /* This gives the number of valid values in cfInfo.
-                       For example if voice is forwarded to one number and data
-                       is forwarded to a different one then numValidIndexes will be
-                       2 indicating total number of valid values in cfInfo.
-                       Similarly if all the services are forwarded to the same
-                       number then the value of numValidIndexes will be 1. */
-
-  RIL_CallForwardInfo cfInfo[NUM_SERVICE_CLASSES]; /* This is the response data
-                                                      for SS request to query call
-                                                      forward status. see
-                                                      RIL_REQUEST_QUERY_CALL_FORWARD_STATUS */
-} RIL_CfData;
-
-typedef struct {
-  RIL_SsServiceType serviceType;
-  RIL_SsRequestType requestType;
-  RIL_SsTeleserviceType teleserviceType;
-  int serviceClass;
-  RIL_Errno result;
-
-  union {
-    int ssInfo[SS_INFO_MAX]; /* This is the response data for most of the SS GET/SET
-                                RIL requests. E.g. RIL_REQUSET_GET_CLIR returns
-                                two ints, so first two values of ssInfo[] will be
-                                used for response if serviceType is SS_CLIR and
-                                requestType is SS_INTERROGATION */
-
-    RIL_CfData cfData;
-  };
-} RIL_StkCcUnsolSsResponse;
-
-/* basic requests */
 /**
  * RIL_REQUEST_GET_SIM_STATUS
  *
@@ -1148,6 +1021,7 @@ typedef struct {
  */
 
 #define RIL_REQUEST_ENTER_SIM_PIN 2
+
 
 /**
  * RIL_REQUEST_ENTER_SIM_PUK
@@ -1326,9 +1200,6 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
- *  DIAL_MODIFIED_TO_USSD
- *  DIAL_MODIFIED_TO_SS
- *  DIAL_MODIFIED_TO_DIAL
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_DIAL 10
@@ -1932,9 +1803,6 @@ typedef struct {
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
  *  FDN_CHECK_FAILURE
- *  USSD_MODIFIED_TO_DIAL
- *  USSD_MODIFIED_TO_SS
- *  USSD_MODIFIED_TO_USSD
  *  GENERIC_FAILURE
  *
  * See also: RIL_REQUEST_CANCEL_USSD, RIL_UNSOL_ON_USSD
@@ -1970,9 +1838,6 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  SS_MODIFIED_TO_DIAL
- *  SS_MODIFIED_TO_USSD
- *  SS_MODIFIED_TO_SS
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_GET_CLIR 31
@@ -1988,9 +1853,6 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  SS_MODIFIED_TO_DIAL
- *  SS_MODIFIED_TO_USSD
- *  SS_MODIFIED_TO_SS
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_SET_CLIR 32
@@ -2014,9 +1876,6 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  SS_MODIFIED_TO_DIAL
- *  SS_MODIFIED_TO_USSD
- *  SS_MODIFIED_TO_SS
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_QUERY_CALL_FORWARD_STATUS 33
@@ -2033,9 +1892,6 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  SS_MODIFIED_TO_DIAL
- *  SS_MODIFIED_TO_USSD
- *  SS_MODIFIED_TO_SS
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_SET_CALL_FORWARD 34
@@ -2062,9 +1918,6 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  SS_MODIFIED_TO_DIAL
- *  SS_MODIFIED_TO_USSD
- *  SS_MODIFIED_TO_SS
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_QUERY_CALL_WAITING 35
@@ -2084,9 +1937,6 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  SS_MODIFIED_TO_DIAL
- *  SS_MODIFIED_TO_USSD
- *  SS_MODIFIED_TO_SS
  *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_SET_CALL_WAITING 36
@@ -2229,9 +2079,6 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  SS_MODIFIED_TO_DIAL
- *  SS_MODIFIED_TO_USSD
- *  SS_MODIFIED_TO_SS
  *  GENERIC_FAILURE
  *
  */
@@ -2261,9 +2108,6 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  SS_MODIFIED_TO_DIAL
- *  SS_MODIFIED_TO_USSD
- *  SS_MODIFIED_TO_SS
  *  GENERIC_FAILURE
  *
  */
@@ -2286,9 +2130,6 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE
- *  SS_MODIFIED_TO_DIAL
- *  SS_MODIFIED_TO_USSD
- *  SS_MODIFIED_TO_SS
  *  GENERIC_FAILURE
  *
  */
@@ -2509,9 +2350,6 @@ typedef struct {
  * Valid errors:
  *  SUCCESS
  *  RADIO_NOT_AVAILABLE (radio resetting)
- *  SS_MODIFIED_TO_DIAL
- *  SS_MODIFIED_TO_USSD
- *  SS_MODIFIED_TO_SS
  *  GENERIC_FAILURE
  */
 
@@ -3806,7 +3644,63 @@ typedef struct {
  */
 #define RIL_REQUEST_SET_DATA_SUBSCRIPTION  116
 
-/* basic unsol response */
+/* SAMSUNG REQUESTS */
+#define SAMSUNG_REQUEST_BASE 10000
+
+#define RIL_REQUEST_GET_CELL_BROADCAST_CONFIG 10002
+
+#define RIL_REQUEST_SEND_ENCODED_USSD 10005
+#define RIL_REQUEST_SET_PDA_MEMORY_STATUS 10006
+#define RIL_REQUEST_GET_PHONEBOOK_STORAGE_INFO 10007
+#define RIL_REQUEST_GET_PHONEBOOK_ENTRY 10008
+#define RIL_REQUEST_ACCESS_PHONEBOOK_ENTRY 10009
+#define RIL_REQUEST_DIAL_VIDEO_CALL 10010
+#define RIL_REQUEST_CALL_DEFLECTION 10011
+#define RIL_REQUEST_READ_SMS_FROM_SIM 10012
+#define RIL_REQUEST_USIM_PB_CAPA 10013
+#define RIL_REQUEST_LOCK_INFO 10014
+
+#define RIL_REQUEST_DIAL_EMERGENCY 10016
+#define RIL_REQUEST_GET_STOREAD_MSG_COUNT 10017
+#define RIL_REQUEST_STK_SIM_INIT_EVENT 10018
+#define RIL_REQUEST_GET_LINE_ID 10019
+#define RIL_REQUEST_SET_LINE_ID 10020
+#define RIL_REQUEST_GET_SERIAL_NUMBER 10021
+#define RIL_REQUEST_GET_MANUFACTURE_DATE_NUMBER 10022
+#define RIL_REQUEST_GET_BARCODE_NUMBER 10023
+#define RIL_REQUEST_UICC_GBA_AUTHENTICATE_BOOTSTRAP 10024
+#define RIL_REQUEST_UICC_GBA_AUTHENTICATE_NAF 10025
+#define RIL_REQUEST_SIM_TRANSMIT_BASIC 10026
+#define RIL_REQUEST_SIM_OPEN_CHANNEL 10027
+#define RIL_REQUEST_SIM_CLOSE_CHANNEL 10028
+#define RIL_REQUEST_SIM_TRANSMIT_CHANNEL 10029
+#define RIL_REQUEST_SIM_AUTH 10030
+#define RIL_REQUEST_PS_ATTACH 10031
+#define RIL_REQUEST_PS_DETACH 10032
+#define RIL_REQUEST_ACTIVATE_DATA_CALL 10033
+#define RIL_REQUEST_CHANGE_SIM_PERSO 10034
+#define RIL_REQUEST_ENTER_SIM_PERSO 10035
+#define RIL_REQUEST_GET_TIME_INFO 10036
+#define RIL_REQUEST_OMADM_SETUP_SESSION 10037
+#define RIL_REQUEST_OMADM_SERVER_START_SESSION 10038
+#define RIL_REQUEST_OMADM_CLIENT_START_SESSION 10039
+#define RIL_REQUEST_OMADM_SEND_DATA 10040
+#define RIL_REQUEST_CDMA_GET_DATAPROFILE 10041
+#define RIL_REQUEST_CDMA_SET_DATAPROFILE 10042
+#define RIL_REQUEST_CDMA_GET_SYSTEMPROPERTIES 10043
+#define RIL_REQUEST_CDMA_SET_SYSTEMPROPERTIES 10044
+#define RIL_REQUEST_SEND_SMS_COUNT 10045
+#define RIL_REQUEST_SEND_SMS_MSG 10046
+#define RIL_REQUEST_SEND_SMS_MSG_READ_STATUS 10047
+#define RIL_REQUEST_MODEM_HANGUP 10048
+#define RIL_REQUEST_SET_SIM_POWER 10049
+#define RIL_REQUEST_SET_PREFERRED_NETWORK_LIST 10050
+#define RIL_REQUEST_GET_PREFERRED_NETWORK_LIST 10051
+#define RIL_REQUEST_HANGUP_VT 10052
+
+/***********************************************************************/
+
+
 #define RIL_UNSOL_RESPONSE_BASE 1000
 
 /**
@@ -3939,6 +3833,7 @@ typedef struct {
  * Obsolete. Send via RIL_UNSOL_ON_USSD
  */
 #define RIL_UNSOL_ON_USSD_REQUEST 1007
+
 
 /**
  * RIL_UNSOL_NITZ_TIME_RECEIVED
@@ -4308,131 +4203,43 @@ typedef struct {
  */
 #define RIL_UNSOL_RESPONSE_IMS_NETWORK_STATE_CHANGED 1037
 
-/**
- * RIL_UNSOL_ON_SS
- *
- * Called when SS response is received when DIAL/USSD/SS is changed to SS by
- * call control.
- *
- * "data" is const RIL_StkCcUnsolSsResponse *
- *
- */
-#define RIL_UNSOL_ON_SS 1038
+/* SAMSUNG RESPONSE */
+#define SAMSUNG_UNSOL_RESPONSE_BASE 11000
 
+#define RIL_UNSOL_RELEASE_COMPLETE_MESSAGE 11001
+#define RIL_UNSOL_STK_SEND_SMS_RESULT 11002
+#define RIL_UNSOL_STK_CALL_CONTROL_RESULT 11003
+#define RIL_UNSOL_DUN_CALL_STATUS 11004
 
-/**
- * RIL_UNSOL_STK_CC_ALPHA_NOTIFY
- *
- * Called when there is an ALPHA from UICC during Call Control.
- *
- * "data" is const char * containing ALPHA string from UICC in UTF-8 format.
- *
- */
-#define RIL_UNSOL_STK_CC_ALPHA_NOTIFY 1039
+#define RIL_UNSOL_O2_HOME_ZONE_INFO 11007
+#define RIL_UNSOL_DEVICE_READY_NOTI 11008
+#define RIL_UNSOL_GPS_NOTI 11009
+#define RIL_UNSOL_AM 11010
+#define RIL_UNSOL_DUN_PIN_CONTROL_SIGNAL 11011
+#define RIL_UNSOL_DATA_SUSPEND_RESUME 11012
+#define RIL_UNSOL_SAP 11013
 
-/**
- * RIL_UNSOL_UICC_SUBSCRIPTION_STATUS_CHANGED
- *
- * Indicated when there is a change in subscription status.
- * This event will be sent in the following scenarios
- *  - subscription readiness at modem, which was selected by telephony layer
- *  - when subscription is deactivated by modem due to UICC card removal
- *  - When network invalidates the subscription i.e. attach reject due to authentication reject
- *
- * "data" is const int *
- * ((const int *)data)[0] == 0 for Subscription Deactivated
- * ((const int *)data)[0] == 1 for Subscription Activated
- *
- */
-#define RIL_UNSOL_UICC_SUBSCRIPTION_STATUS_CHANGED 1040
+#define RIL_UNSOL_SIM_SMS_STORAGE_AVAILALE 11015
+#define RIL_UNSOL_HSDPA_STATE_CHANGED 11016
+#define RIL_UNSOL_WB_AMR_STATE 11017
+#define RIL_UNSOL_TWO_MIC_STATE 11018
+#define RIL_UNSOL_DHA_STATE 11019
+#define RIL_UNSOL_UART 11020
+#define RIL_UNSOL_RESPONSE_HANDOVER 11021
+#define RIL_UNSOL_IPV6_ADDR 11022
+#define RIL_UNSOL_NWK_INIT_DISC_REQUEST 11023
+#define RIL_UNSOL_RTS_INDICATION 11024
+#define RIL_UNSOL_OMADM_SEND_DATA 11025
+#define RIL_UNSOL_DUN 11026
+#define RIL_UNSOL_SYSTEM_REBOOT 11027
+#define RIL_UNSOL_VOICE_PRIVACY_CHANGED 11028
+#define RIL_UNSOL_UTS_GETSMSCOUNT 11029
+#define RIL_UNSOL_UTS_GETSMSMSG 11030
+#define RIL_UNSOL_UTS_GET_UNREAD_SMS_STATUS 11031
+#define RIL_UNSOL_MIP_CONNECT_STATUS 11032
 
 /***********************************************************************/
-/* SAMSUNG REQUESTS */
-#define SAMSUNG_REQUEST_BASE 			10000
-#define RIL_REQUEST_GET_CELL_BROADCAST_CONFIG	10002
 
-#define RIL_REQUEST_SEND_ENCODED_USSD		10005
-#define RIL_REQUEST_SET_PDA_MEMORY_STATUS	10006
-#define RIL_REQUEST_GET_PHONEBOOK_STORAGE_INFO	10007
-#define RIL_REQUEST_GET_PHONEBOOK_ENTRY		10008
-#define RIL_REQUEST_ACCESS_PHONEBOOK_ENTRY	10009
-#define RIL_REQUEST_DIAL_VIDEO_CALL		10010
-#define RIL_REQUEST_CALL_DEFLECTION		10011
-#define RIL_REQUEST_READ_SMS_FROM_SIM		10012
-#define RIL_REQUEST_USIM_PB_CAPA		10013
-#define RIL_REQUEST_LOCK_INFO			10014
-
-#define RIL_REQUEST_DIAL_EMERGENCY		10016
-#define RIL_REQUEST_GET_STOREAD_MSG_COUNT	10017
-#define RIL_REQUEST_STK_SIM_INIT_EVENT		10018
-#define RIL_REQUEST_GET_LINE_ID			10019
-#define RIL_REQUEST_SET_LINE_ID			10020
-#define RIL_REQUEST_GET_SERIAL_NUMBER		10021
-#define RIL_REQUEST_GET_MANUFACTURE_DATE_NUMBER	10022
-#define RIL_REQUEST_GET_BARCODE_NUMBER		10023
-#define RIL_REQUEST_UICC_GBA_AUTHENTICATE_BOOTSTRAP 10024
-#define RIL_REQUEST_UICC_GBA_AUTHENTICATE_NAF	10025
-#define RIL_REQUEST_SIM_TRANSMIT_BASIC		10026
-#define RIL_REQUEST_SIM_OPEN_CHANNEL		10027
-#define RIL_REQUEST_SIM_CLOSE_CHANNEL		10028
-#define RIL_REQUEST_SIM_TRANSMIT_CHANNEL	10029
-#define RIL_REQUEST_SIM_AUTH			10030
-#define RIL_REQUEST_PS_ATTACH			10031
-#define RIL_REQUEST_PS_DETACH			10032
-#define RIL_REQUEST_ACTIVATE_DATA_CALL		10033
-#define RIL_REQUEST_CHANGE_SIM_PERSO		10034
-#define RIL_REQUEST_ENTER_SIM_PERSO		10035
-#define RIL_REQUEST_GET_TIME_INFO 		10036
-#define RIL_REQUEST_OMADM_SETUP_SESSION 	10037
-#define RIL_REQUEST_OMADM_SERVER_START_SESSION	10038
-#define RIL_REQUEST_OMADM_CLIENT_START_SESSION	10039
-#define RIL_REQUEST_OMADM_SEND_DATA 		10040 
-#define RIL_REQUEST_CDMA_GET_DATAPROFILE	10041
-#define RIL_REQUEST_CDMA_SET_DATAPROFILE	10042
-#define RIL_REQUEST_CDMA_GET_SYSTEMPROPERTIES	10043
-#define RIL_REQUEST_CDMA_SET_SYSTEMPROPERTIES 	10044
-#define RIL_REQUEST_SEND_SMS_COUNT		10045
-#define RIL_REQUEST_SEND_SMS_MSG		10046
-#define RIL_REQUEST_SEND_SMS_MSG_READ_STATUS 	10047
-#define RIL_REQUEST_MODEM_HANGUP		10048
-#define RIL_REQUEST_SET_SIM_POWER 		10049
-#define RIL_REQUEST_SET_PREFERRED_NETWORK_LIST  10050
-#define RIL_REQUEST_GET_PREFERRED_NETWORK_LIST  10051
-#define RIL_REQUEST_HANGUP_VT			10052
-
-/* SAMSUNG UNSOL_RESPONSE */
-#define SAMSUNG_UNSOL_RESPONSE_BASE 		11000
-#define RIL_UNSOL_RELEASE_COMPLETE_MESSAGE 	11001
-#define RIL_UNSOL_STK_SEND_SMS_RESULT		11002
-#define RIL_UNSOL_STK_CALL_CONTROL_RESULT 	11003	
-#define RIL_UNSOL_DUN_CALL_STATUS 		11004	
-#define RIL_UNSOL_O2_HOME_ZONE_INFO 		11007	
-#define RIL_UNSOL_DEVICE_READY_NOTI 		11008	
-#define RIL_UNSOL_GPS_NOTI 			11009	
-#define RIL_UNSOL_AM 	 			11010	
-#define RIL_UNSOL_DUN_PIN_CONTROL_SIGNAL 	11011	
-#define RIL_UNSOL_DATA_SUSPEND_RESUME 	 	11012	
-#define RIL_UNSOL_SAP 	 			11013	
-
-#define RIL_UNSOL_SIM_SMS_STORAGE_AVAILALE 	11015	
-#define RIL_UNSOL_HSDPA_STATE_CHANGED 		11016	
-#define RIL_UNSOL_WB_AMR_STATE 	 		11017	
-#define RIL_UNSOL_TWO_MIC_STATE 	 	11018	
-#define RIL_UNSOL_DHA_STATE 	 		11019
-#define RIL_UNSOL_UART 	 			11020
-#define RIL_UNSOL_RESPONSE_HANDOVER 	 	11021
-#define RIL_UNSOL_IPV6_ADDR 	 		11022
-#define RIL_UNSOL_NWK_INIT_DISC_REQUEST 	11023	
-#define RIL_UNSOL_RTS_INDICATION 	 	11024
-#define RIL_UNSOL_OMADM_SEND_DATA 	 	11025
-#define RIL_UNSOL_DUN				11026	
-#define RIL_UNSOL_SYSTEM_REBOOT 	 	11027	
-#define RIL_UNSOL_VOICE_PRIVACY_CHANGED 	11028	
-#define RIL_UNSOL_UTS_GETSMSCOUNT 	 	11029	
-#define RIL_UNSOL_UTS_GETSMSMSG 	 	11030	
-#define RIL_UNSOL_UTS_GET_UNREAD_SMS_STATUS 	11031	
-#define RIL_UNSOL_MIP_CONNECT_STATUS 	 	11032
-/***********************************************************************/
 
 /**
  * RIL_Request Function pointer

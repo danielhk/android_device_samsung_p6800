@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2012 The CyanogenMod Project
+# Copyright (C) 2014 The CyanogenMod Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ BOARD_HAS_EARPIECE := true
 BOARD_USES_GP2A := true
 
 # RIL, use AOSP ril
-#TARGET_SPECIFIC_HEADER_PATH += device/samsung/p6800/overlay/include
-#BOARD_PROVIDES_LIBRIL := true
-#BOARD_MODEM_TYPE := xmm6260
+TARGET_SPECIFIC_HEADER_PATH += device/samsung/p6800/overlay/include
+BOARD_PROVIDES_LIBRIL := true
+BOARD_MODEM_TYPE := xmm6260
 
