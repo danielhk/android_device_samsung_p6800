@@ -18,6 +18,9 @@
 TARGET_SCREEN_HEIGHT := 800
 TARGET_SCREEN_WIDTH := 1280
 
+# for TWRP
+DEVICE_RESOLUTION := 1280x800
+
 # Inherit device configuration
 $(call inherit-product, $(LOCAL_PATH)/device.mk)
 
