@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2012 The CyanogenMod Project
+# Copyright (C) 2015 The OmniROM Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,10 +34,10 @@ $(call inherit-product, vendor/omni/config/gsm.mk)
 PRODUCT_BRAND := Samsung
 PRODUCT_DEVICE := p6800
 PRODUCT_MANUFACTURER := Samsung
-PRODUCT_MODEL := GT-P6800
+PRODUCT_MODEL := GalaxyTab 7.7
 PRODUCT_NAME := omni_p6800
 PRODUCT_RELEASE_NAME := GT-P6800
 
 # Set product name and build fingerprint
-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=GT-P6800 BUILD_FINGERPRINT="samsung/GT-P6800/GT-P6800:4.3.1/JLS36I:user/release-keys" PRIVATE_BUILD_DESC="GT-P6800-user 4.3.1 JLS36I release-keys"
+PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=GT-P6800 BUILD_FINGERPRINT="samsung/GalaxyTab 7.7/GT-P6800:5.1.1/LYZ28J:user/release-keys" PRIVATE_BUILD_DESC="GT-P6800-user 5.1.1 LYZ28J release-keys"
 
