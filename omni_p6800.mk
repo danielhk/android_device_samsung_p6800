@@ -31,13 +31,13 @@ $(call inherit-product, $(LOCAL_PATH)/device.mk)
 $(call inherit-product, vendor/omni/config/gsm.mk)
 
 # Device identifier. This must come after all inclusions
-PRODUCT_BRAND := Samsung
+PRODUCT_BRAND := GalaxyTab
 PRODUCT_DEVICE := p6800
 PRODUCT_MANUFACTURER := Samsung
-PRODUCT_MODEL := GalaxyTab 7.7
+PRODUCT_MODEL := GT-P6800
 PRODUCT_NAME := omni_p6800
 PRODUCT_RELEASE_NAME := GT-P6800
 
 # Set product name and build fingerprint
-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=GT-P6800 BUILD_FINGERPRINT="samsung/GalaxyTab 7.7/GT-P6800:5.1.1/LYZ28J:user/release-keys" PRIVATE_BUILD_DESC="GT-P6800-user 5.1.1 LYZ28J release-keys"
+PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=GT-P6800 BUILD_FINGERPRINT="samsung/GalaxyTab/GT-P6800:6.0.0/MRA58K:userdebug/release-keys" PRIVATE_BUILD_DESC="GT-P6800-userdebug 6.0.0 MRA58K release-keys"
 
