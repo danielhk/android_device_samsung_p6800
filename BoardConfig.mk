@@ -30,7 +30,7 @@ BOARD_HAS_EARPIECE := true
 BOARD_USES_GP2A := true
 
 # RIL, use AOSP ril
-TARGET_SPECIFIC_HEADER_PATH += device/samsung/p6800/overlay/include
-BOARD_PROVIDES_LIBRIL := true
-BOARD_MODEM_TYPE := xmm6260
-
+#TARGET_SPECIFIC_HEADER_PATH += device/samsung/smdk4210-tab/overlay/include
+#BOARD_PROVIDES_LIBRIL := true
+#BOARD_MODEM_TYPE := xmm6260
+BOARD_RIL_CLASS := ../../../device/samsung/smdk4210-tab/overlay/telephony
