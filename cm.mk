@@ -23,7 +23,7 @@ $(call inherit-product, $(LOCAL_PATH)/device.mk)
 $(call inherit-product, vendor/cm/config/common_full_phone.mk)
 
 # Device identifier. This must come after all inclusions
-PRODUCT_BRAND := Samsung
+PRODUCT_BRAND := GalaxyTab
 PRODUCT_DEVICE := p6800
 PRODUCT_MANUFACTURER := Samsung
 PRODUCT_MODEL := GT-P6800
@@ -31,4 +31,4 @@ PRODUCT_NAME := cm_p6800
 PRODUCT_RELEASE_NAME := GT-P6800
 
 # Set product name and build fingerprint
-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=GT-P6800 BUILD_FINGERPRINT="samsung/GT-P6800/GT-P6800:4.3.1/JLS36I:user/release-keys" PRIVATE_BUILD_DESC="GT-P6800-user 4.3.1 JLS36I release-keys"
+PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=GT-P6800 BUILD_FINGERPRINT="samsung/GalaxyTab/GT-P6800:6.0.0/MDB08M:userdebug/release-keys" PRIVATE_BUILD_DESC="GT-P6800-userdebug 6.0.0 MDB08M release-keys"
