@@ -40,7 +40,8 @@ $(call inherit-product, build/target/product/telephony.mk)
 PRODUCT_PROPERTY_OVERRIDES += \
 	mobiledata.interfaces=pdp0,wlan0,gprs,ppp0 \
 	ro.telephony.call_ring.multiple=false \
-	ro.telephony.call_ring.delay=3000
+	ro.telephony.call_ring.delay=3000 \
+	ro.telephony.ril_class=SamsungExynos4RIL
 
 PRODUCT_COPY_FILES += \
 	device/samsung/smdk4210-tab/configs/etc/old-apns-conf.xml:system/etc/old-apns-conf.xml \
