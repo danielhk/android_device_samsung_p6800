@@ -49,6 +49,7 @@ PRODUCT_COPY_FILES += \
 
 # extra packages
 PRODUCT_PACKAGES += \
+	messaging \
 	SamsungServiceMode \
 	VoiceDialer \
 	libsecril-client \
