@@ -33,6 +33,11 @@ PRODUCT_COPY_FILES += \
 	device/samsung/smdk4210-tab/configs/etc/gps.cer:system/etc/gps.cer \
 	device/samsung/smdk4210-tab/configs/etc/gps.xml:system/etc/gps.xml
 
+# We need to build the GPS interposition library for the GPS to work, also M removes
+# libstlport, but some of our blobs need it, so we add it back in source
+PRODUCT_PACKAGES += \
+	libdmitry
+
 # Radio
 $(call inherit-product, build/target/product/telephony.mk)
 
